@@ -1,0 +1,47 @@
+
+# Views.py
+
+
+#STEP 1
+from django.contrib import messages
+#STEP 1 END
+
+def signup(request):   
+    if request.method == "POST":
+        #check if username already exist
+        users = User.objects.filter(username=request.POST['username'])
+        if users.count()>0:
+            #step 2
+            #added two lines here            
+            messages.add_message(request,messages.INFO,"This username is already exist with us.")
+            return redirect(signup)
+            #step 2 end
+        else:
+            u = User.objects.create_user(
+                first_name=request.POST['first_name'],
+                last_name = request.POST['last_name'],
+                email=request.POST['email'],
+                password=request.POST['password'],
+                username = request.POST['username']
+            )
+            up = UserProfile()
+            up.user_id = u
+            up.save()
+            user = authenticate(username=request.POST['username'],password=request.POST['password'])
+            login(request,user)            
+            return redirect(index)
+    else:
+        return render(request,"socialnetwork/signup.html")
+
+#signup.html
+#step3
+{% if messages %}
+    <ul>
+    {% for i in messages %}
+        <li>{{i}}</li>
+    {% endfor %}
+    </ul>
+{% endif %}
+#step3 end
+
+
